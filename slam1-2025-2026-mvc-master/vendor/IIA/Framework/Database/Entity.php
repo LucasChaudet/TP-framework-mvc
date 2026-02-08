@@ -48,5 +48,40 @@ class Entity
         return $this->database->execute($query, [':id' => $this->id]);
     }
 
+// Méthode save : sauvegarde un objet en base de données (INSERT ou UPDATE)
+    public function save(): bool
+    {
+        // Récupère toutes les propriétés de l'objet
+        $properties = get_object_vars($this);
+        
+        // Supprime les propriétés système qui ne doivent pas aller en base de données
+        unset($properties['database'], $properties['table']);
+
+        // Vérifie si l'objet a déjà un ID
+        if (isset($this->id) && $this->id > 0) {
+            // Si oui, c'est une mise à jour (UPDATE)
+            return $this->update($properties);
+        } else {
+            // Si non, c'est une insertion (INSERT)
+            return $this->insert($properties);
+        }
+    }
+
+
+    public function getOne(int $id): ?Entity
+    {
+        // Exécute une requête SELECT pour trouver l'objet avec cet ID
+        // La requête cherche dans la table et filtre par id 
+        $results = $this->database->query(
+            "SELECT * FROM " . $this->table . " WHERE id = :id",
+            static::class,
+            [':id' => $id]
+        );
+        
+        // Vérifie si des résultats ont été trouvés
+        // Si oui, retourne le premier résultat 
+        // Si non (tableau vide), retourne null
+        return !empty($results) ? $results[0] : null;
+    }
 
 }

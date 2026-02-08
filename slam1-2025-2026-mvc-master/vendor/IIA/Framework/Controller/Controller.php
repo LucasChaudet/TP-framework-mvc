@@ -28,4 +28,11 @@ class Controller
     {
         $this->database = $database;
     }
+
+// redirige vers une autre page
+    public function redirect(string $url): void
+    {
+        header('Location: ' . $url);
+        exit();
+    }
 }
